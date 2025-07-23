@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Update Links</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 180px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 25px;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .link {
+      margin: 8px 0;
+    }
+
+    .link a {
+      display: block;
+      background: deeppink;
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.2s ease-in-out;
+    }
+
+    .link a:hover {
+      background: #c2185b;
+    }
+
+    #searchSection {
+      display: none;
+    }
+
+    #notHomeMessage {
+      display: none;
+      
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .button-group button {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      background-color: deeppink;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .button-group button:hover {
+      background-color: #c2185b;
+    }
+
+
+
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a href="https://umoja.network/?stay=yes">
+      <img src="Umoja Logo Web_320x86_png.png" alt="Logo" class="logo" />
+    </a>
+    
+    <div id="questionSection">
+      <p style="text-align: left;">
+        We're helping you update your <strong>WhatsApp number</strong>, <strong>GPS location</strong>, and <strong>home address</strong>.<br><br>
+        To make sure we capture the correct location of your WiFi installation, please open this link only when you are <strong>at home</strong>, where your WiFi device is currently set up.<br><br>
+        If you're not at home right now, kindly try again later so we can update your information accurately and ensure a smooth service experience.
+      </p>
+
+      <h2 style="margin-top: 30px;">To continue, please confirm:</h2>
+      <p><strong>Are you currently at home where your WiFi is installed?</strong></p>
+
+      <div class="button-group">
+        <button onclick="showSearch(true)">Yes</button>
+        <button onclick="showSearch(false)">No</button>
+      </div>
+    </div>
+
+
+    <div id="searchSection">
+      <h2>Please type your <b>FULL NAME</b><br>as on your <b>ID or PASSPORT</b>.</h2>
+      <p>Please type your full name exactly as it appears on the ID or Passport you used to register with Umoja — 
+        starting with your <b>given names</b>, followed by your <b>surname</b>.</p>
+      <input type="text" id="searchInput" placeholder="Search full name..." onkeyup="filterLinks()" />
+      <div id="linkContainer"></div>
+    </div>
+
+    <div id="notHomeMessage">Please try again when you're at home, where your WiFi is installed, so we can capture your accurate location and update your details successfully.</div>
+  </div>
+
+  <script>
+    const sheetID = '1n9IOhlus1l29XmiZZ5htu1neITYIcvMIUyEPTnpcS54';
+    const sheetName = 'Customer Data';
+    const apiKey = 'AIzaSyB7KkrxEuYwukMKD_IrI26Mj6NEijnlcck';
+    const apiURL = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}?alt=json&key=${apiKey}`;
+
+    let allCustomers = [];
+
+    async function fetchCustomersAndGenerateLinks() {
+      const container = document.getElementById("linkContainer");
+
+      try {
+        const response = await fetch(apiURL);
+        const data = await response.json();
+        const rows = data.values;
+
+        if (!rows || rows.length <= 1) {
+          container.textContent = "No customer data found.";
+          return;
+        }
+
+        allCustomers = rows.slice(1).map(row => ({
+          id: row[0],
+          name: row[1] || ''
+        }));
+
+        container.innerHTML = ""; // empty display until matched
+      } catch (err) {
+        container.textContent = "Error fetching data.";
+        console.error(err);
+      }
+    }
+
+    function displayCustomers(customers) {
+      const container = document.getElementById("linkContainer");
+      container.innerHTML = "";
+
+      customers.forEach(({ id, name }) => {
+        const link = `update.html?id=${encodeURIComponent(id)}`;
+        const div = document.createElement("div");
+        div.className = "link";
+        div.innerHTML = `<a href="${link}">${name}</a>`;
+        container.appendChild(div);
+      });
+    }
+
+    function filterLinks() {
+      const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
+
+      if (searchTerm === "") {
+        document.getElementById("linkContainer").innerHTML = "";
+        return;
+      }
+
+      const filtered = allCustomers.filter(cust =>
+        cust.name.toLowerCase().trim() === searchTerm
+      );
+
+      displayCustomers(filtered);
+    }
+
+    function showSearch(isHome) {
+      document.getElementById("questionSection").style.display = "none";
+
+      if (isHome) {
+        document.getElementById("searchSection").style.display = "block";
+        fetchCustomersAndGenerateLinks();
+      } else {
+        document.getElementById("notHomeMessage").style.display = "block";
+      }
+    }
+  </script>
+</body>
+</html>

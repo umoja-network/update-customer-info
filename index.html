@@ -70,7 +70,6 @@
 
     #notHomeMessage {
       display: none;
-      
       font-weight: bold;
       margin-top: 20px;
     }
@@ -97,9 +96,6 @@
     .button-group button:hover {
       background-color: #c2185b;
     }
-
-
-
   </style>
 </head>
 <body>
@@ -126,10 +122,11 @@
 
 
     <div id="searchSection">
-      <h2>Please type your <b>FULL NAME</b><br>as on your <b>ID or PASSPORT</b>.</h2>
-      <p>Please type your full name exactly as it appears on the ID or Passport you used to register with Umoja — 
-        starting with your <b>given names</b>, followed by your <b>surname</b>.</p>
-      <input type="text" id="searchInput" placeholder="Search full name..." onkeyup="filterLinks()" />
+      <h2>Please type your <b>ID or Passport Number</b>.</h2>
+      <p>
+        Enter the ID or Passport number you used to register with Umoja, your registered name will appear below as a clickable link to update your details.
+      </p>
+      <input type="text" id="searchInput" placeholder="Enter ID or Passport number..." onkeyup="filterLinks()" />
       <div id="linkContainer"></div>
     </div>
 
@@ -157,12 +154,14 @@
           return;
         }
 
+        
         allCustomers = rows.slice(1).map(row => ({
           id: row[0],
-          name: row[1] || ''
+          name: row[1] || '',
+          idNumber: row[4] || ''
         }));
 
-        container.innerHTML = ""; // empty display until matched
+        container.innerHTML = ""; // clear display until match
       } catch (err) {
         container.textContent = "Error fetching data.";
         console.error(err);
@@ -183,7 +182,7 @@
     }
 
     function filterLinks() {
-      const searchTerm = document.getElementById("searchInput").value.toLowerCase().trim();
+      const searchTerm = document.getElementById("searchInput").value.trim();
 
       if (searchTerm === "") {
         document.getElementById("linkContainer").innerHTML = "";
@@ -191,7 +190,7 @@
       }
 
       const filtered = allCustomers.filter(cust =>
-        cust.name.toLowerCase().trim() === searchTerm
+        cust.idNumber.toLowerCase() === searchTerm.toLowerCase()
       );
 
       displayCustomers(filtered);

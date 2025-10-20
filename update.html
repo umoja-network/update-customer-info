@@ -167,7 +167,7 @@
       <p><strong>Detected Address:</strong></p>
       <p id="detectedAddress">Fetching address...</p>
       <p><strong>Is this location correct?</strong></p>
-      <button onclick="reload()">Not Correct</button>
+      <button onclick="enterAddressManually()">Not Correct</button>
       <button onclick="confirmAndSend()">Yes, it's correct</button>
     </div>
   </div>
@@ -190,9 +190,12 @@
         document.getElementById("mapModal").style.display = "none";
     }
 
-    function reload() {
-        location.reload();
+    function enterAddressManually() {
+      document.getElementById("mapModal").style.display = "none";
+      document.getElementById("manualAddressSection").style.display = "block";
+      document.getElementById("statusMsg").textContent = "Please enter your address manually.";
     }
+
 
     function showMap(latInit, lngInit) {
         const map = new google.maps.Map(document.getElementById("map"), {
@@ -384,3 +387,4 @@
 
 </body>
 </html>
+
